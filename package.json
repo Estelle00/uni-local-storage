@@ -5,5 +5,9 @@
   "main": "index.js",
   "author": "liubingwen",
   "license": "MIT",
-  "private": false
+  "keywords": ["uni-ls", "uni", "uni-storage", "uni-localstorage"],
+  "private": false,
+  "repository": {
+    "url": "https://github.com/Estelle00/uni-ls"
+  }
 }
