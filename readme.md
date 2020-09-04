@@ -71,3 +71,13 @@ Vue.ls.getAll(version)
 Vue.ls.remove(name);
 ```
 删除`name`数据，成功返回`true`；
+
+```javascript
+Vue.ls.on(name, callback);
+```
+添加`name`发生变化时的监听
+```javascript
+Vue.ls.off(name, callback);
+```
+关闭`name`发生变化的回调
+> `callback` 不填写清空当前`name`的所有监听事件

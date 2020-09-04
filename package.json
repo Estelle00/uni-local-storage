@@ -1,6 +1,6 @@
 {
   "name": "uni-ls",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "对uni的本地存储做二次封装增强",
   "main": "index.js",
   "author": "liubingwen",

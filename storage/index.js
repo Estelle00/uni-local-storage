@@ -69,42 +69,34 @@ export default class Storage {
 					this[sourceKey][key] = data;
 					uni.setStorageSync(namespace + key, data);
 				}
-        const {change} = this.monitor;
-        Object.keys(change).forEach(id => {
-          change[id](key, data?.value || null);
+				const callback = this.monitor[key];
+        Object.keys(callback).forEach(id => {
+					callback[id](key, data?.value || null);
         })
 			}
 		})
 	}
-  off(action, callback) {
-    if(callback) {
-      const {lsid} = callback;
-      console.log("off", callback.lsid)
-      delete this.monitor[action][lsid]
-    } else {
-      this.monitor[action] = {};
-    }
-
-  }
-  on(action, callback) {
-    if(process.env.NODE_ENV === 'development') {
-      const tempArr = Object.keys(this.monitor)
-      if(!tempArr.includes(action)) {
-        console.error("只支持这些监听方法", tempArr);
-        return;
-      };
-    }
-    const actions = this.monitor[action];
+  on(name, callback) {
+    const actions = this.monitor[name];
     const actionKeys = Object.keys(actions);
-    console.log(callback.lsid);
     if(callback.lsid && actionKeys.includes(callback.lsid)) {
       console.warn("同一方法重复注册");
       return;
     }
     const lsid = getUUID();
     callback.lsid = lsid;
-    this.monitor[action][lsid] = callback;
+    this.monitor[name][lsid] = callback;
   }
+	off(name, callback) {
+		if(callback) {
+			const { lsid } = callback;
+			console.log("off", callback.lsid)
+			delete this.monitor[name][lsid]
+		} else {
+			this.monitor[name] = {};
+		}
+
+	}
 	get(key, ver = "0.0.1") {
 		const {value, version, time } = this.data[key] || {};
 		if (value && version && compareVersion(version, ver) > -1) {
