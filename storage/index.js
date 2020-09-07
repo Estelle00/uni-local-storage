@@ -69,9 +69,9 @@ export default class Storage {
 					this[sourceKey][key] = data;
 					uni.setStorageSync(namespace + key, data);
 				}
-				const callback = this.monitor[key];
+				const callback = this.monitor[key] || [];
         Object.keys(callback).forEach(id => {
-					callback[id](key, data?.value || null);
+					callback[id](data?.value || null);
         })
 			}
 		})

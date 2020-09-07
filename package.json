@@ -1,13 +1,13 @@
 {
   "name": "uni-ls",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "对uni的本地存储做二次封装增强",
   "main": "index.js",
   "author": "liubingwen",
   "license": "MIT",
-  "keywords": ["uni-ls", "uni", "uni-storage", "uni-localstorage"],
-  "private": false,
+  "keywords": ["uni-ls", "uni", "uni-storage", "uni-local-storage"],
   "repository": {
     "url": "https://github.com/Estelle00/uni-ls"
-  }
+  },
+  "types": "./types/index.d.ts"
 }
