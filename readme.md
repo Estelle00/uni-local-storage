@@ -3,13 +3,13 @@
 #### NPM
 
 ```shell script
-npm install uni-ls --save
+npm install uni-local-storage --save
 ```
 
 #### YARN
 
 ```shell script
-yarn add uni-ls
+yarn add uni-local-storage
 ```
 
 ### Usage
@@ -17,7 +17,7 @@ yarn add uni-ls
 uni storage API
 
 ```javascript
-import Storage from "uni-ls";
+import Storage from "uni-local-storage";
 // name 默认 ls；
 Vue.use(Storage, { name: "ls" });
 // or
