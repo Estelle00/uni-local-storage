@@ -104,10 +104,7 @@ export default class Storage {
 			},
 			set:(data) => {
 				const oldValue = this.data[key].value;
-				// 如果判断数据是否相同
-				if (isEqual(data.value, oldValue)) {
-					return;
-				}
+
 				if (data === undefined) {
 					delete this.data[key];
 					delete this[sourceKey][key];
@@ -116,10 +113,13 @@ export default class Storage {
 					this[sourceKey][key] = data;
 					uni.setStorageSync(namespace + key, data);
 				}
-				const callback = this.monitor[key] || [];
-        Object.keys(callback).forEach(id => {
-					callback[id](data?.value || null);
-        })
+				// 如果判断数据是否相同
+				if (!isEqual(data.value, oldValue)) {
+					const callback = this.monitor[key] || [];
+					Object.keys(callback).forEach(id => {
+						callback[id](data?.value || null);
+					})
+				}
 			}
 		})
 	}
