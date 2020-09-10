@@ -103,7 +103,7 @@ export default class Storage {
 				return this[sourceKey][key]
 			},
 			set:(data) => {
-				const oldValue = this.data[key].value;
+				const oldValue = this.data[key]?.value;
 
 				if (data === undefined) {
 					delete this.data[key];
@@ -115,7 +115,7 @@ export default class Storage {
 				}
 				// 如果判断数据是否相同
 				const callback = this.monitor[key] || [];
-				if (callback.length && !isEqual(data.value, oldValue)) {
+				if (callback.length && !isEqual(data?.value, oldValue)) {
 					Object.keys(callback).forEach(id => {
 						callback[id](data?.value || null);
 					})
