@@ -1,3 +1,45 @@
+function type(obj) {
+	return {}.toString
+		.call(obj)
+		.slice(8, -1)
+		.toLowerCase();
+}
+function isEqual(a, b) {
+	if (a === b) {
+		return a !== 0 || 1 / a === 1 / b;
+	}
+	if (a === null || b === null) {
+		return a === b;
+	}
+	const className = type(a);
+	if (className !== type(b)) {
+		return false;
+	}
+	if (className === "object") {
+		const propsA = Object.getOwnPropertyNames(a);
+		const propsB = Object.getOwnPropertyNames(b);
+		if (propsA.length !== propsB.length) {
+			return false;
+		}
+		for (let i = 0; i < propsA.length; i++) {
+			const propsName = propsA[i];
+			if (!isEqual(a[propsName], b[propsName])) {
+				return false;
+			}
+		}
+		return true;
+	}
+	if (className === "array") {
+		if (a.length !== b.length) return false;
+		for (let i = 0; i < a.length; i++) {
+			if (!isEqual(a[i], b[i])) {
+				return false
+			}
+		}
+		return true;
+	}
+}
+
 function noop (a, b, c) {}
 
 /**
@@ -57,14 +99,19 @@ export default class Storage {
 		Object.defineProperty(target.data, key, {
 			enumerable: true,
 			configurable: true,
-			get:  () => {
+			get:() => {
 				return this[sourceKey][key]
 			},
-			set: (data) => {
+			set:(data) => {
+				const oldValue = this.data[key].value;
+				// 如果判断数据是否相同
+				if (isEqual(data.value, oldValue)) {
+					return;
+				}
 				if (data === undefined) {
 					delete this.data[key];
 					delete this[sourceKey][key];
-					uni.removeStorageSync(namespace +key)
+					uni.removeStorageSync(namespace + key)
 				} else {
 					this[sourceKey][key] = data;
 					uni.setStorageSync(namespace + key, data);

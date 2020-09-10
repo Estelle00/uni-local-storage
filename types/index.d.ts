@@ -3,7 +3,7 @@ declare class UniStorage {
   static install:PluginFunction<never>;
   get(name: string, version?: string) : any;
   getAll(version?: string): object;
-  set(name: string, value: any, expire: number);
+  set(name: string, value: any, expire?: number);
   remove(name: string): boolean;
   on(name: string, callback: ( newValue: any) =>{});
   off(name, callback?:( newValue: any) =>{});
