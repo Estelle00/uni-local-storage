@@ -114,8 +114,8 @@ export default class Storage {
 					uni.setStorageSync(namespace + key, data);
 				}
 				// 如果判断数据是否相同
-				if (!isEqual(data.value, oldValue)) {
-					const callback = this.monitor[key] || [];
+				const callback = this.monitor[key] || [];
+				if (callback.length && !isEqual(data.value, oldValue)) {
 					Object.keys(callback).forEach(id => {
 						callback[id](data?.value || null);
 					})
