@@ -1,6 +1,6 @@
 {
   "name": "uni-local-storage",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "对uni的本地存储做二次封装增强",
   "main": "index.js",
   "author": "liubingwen",

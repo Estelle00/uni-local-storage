@@ -46,11 +46,11 @@ function noop (a, b, c) {}
  * 获取uuid
  */
 function getUUID() {
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
-    return (c === "x" ? (Math.random() * 16) | 0 : "r&0x3" | "0x8").toString(
-      16
-    );
-  });
+	return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
+		return (c === "x" ? (Math.random() * 16) | 0 : "r&0x3" | "0x8").toString(
+			16
+		);
+	});
 }
 
 const sharedPropertyDefinition = {
@@ -77,15 +77,12 @@ function getData(namespace) {
 export default class Storage {
 	constructor(options = {}) {
 		this.options = {
-        version: "0.0.1",
-        namespace: "__ls__",
-        ...options
-    };
-    this.data = {};
-    this.monitor = {
-      // 变化
-      change: {}
-    };
+			version: "0.0.1",
+			namespace: "__ls__",
+			...options
+		};
+		this.data = {};
+		this.monitor = {};
 		const data = this._data = getData(options.namespace);
 		Object.keys(data).forEach(key => this._proxy(this, "_data", key));
 		Object.defineProperty(this, "length", {
@@ -95,7 +92,7 @@ export default class Storage {
 		})
 	}
 	_proxy(target, sourceKey, key) {
-    const { namespace } = this.options;
+		const { namespace } = this.options;
 		Object.defineProperty(target.data, key, {
 			enumerable: true,
 			configurable: true,
@@ -104,7 +101,6 @@ export default class Storage {
 			},
 			set:(data) => {
 				const oldValue = this.data[key]?.value;
-
 				if (data === undefined) {
 					delete this.data[key];
 					delete this[sourceKey][key];
@@ -114,27 +110,39 @@ export default class Storage {
 					uni.setStorageSync(namespace + key, data);
 				}
 				// 如果判断数据是否相同
-				const callback = this.monitor[key] || [];
-				if (callback.length && !isEqual(data?.value, oldValue)) {
-					Object.keys(callback).forEach(id => {
-						callback[id](data?.value || null);
-					})
+				const callback = this.monitor[key];
+				if(callback) {
+					const arr = Object.keys(callback);
+					if (arr.length && !isEqual(data?.value, oldValue)) {
+						arr.forEach(id => {
+							callback[id](data?.value || null, oldValue);
+						})
+					}
 				}
 			}
 		})
 	}
-  on(name, callback) {
-    const actions = this.monitor[name];
-    const actionKeys = Object.keys(actions);
-    if(callback.lsid && actionKeys.includes(callback.lsid)) {
-      console.warn("同一方法重复注册");
-      return;
-    }
-    const lsid = getUUID();
-    callback.lsid = lsid;
-    this.monitor[name][lsid] = callback;
-  }
+	on(name, callback) {
+		const actions = this.monitor[name];
+		if(actions) {
+			const actionKeys = Object.keys(actions);
+			if(actionKeys.length && callback.lsid && actionKeys.includes(callback.lsid)) {
+				console.warn("同一方法重复注册");
+				return;
+			}
+		} else {
+			this.monitor[name] = {};
+		}
+		const lsid = getUUID();
+		callback.lsid = lsid;
+		this.monitor[name][lsid] = callback;
+	}
 	off(name, callback) {
+		const callbacks = this.monitor[name];
+		if(!callbacks || Object.keys(callbacks).length <= 0) {
+			console.warn(name + "不存在监听事件");
+			return;
+		}
 		if(callback) {
 			const { lsid } = callback;
 			console.log("off", callback.lsid)
@@ -142,7 +150,6 @@ export default class Storage {
 		} else {
 			this.monitor[name] = {};
 		}
-
 	}
 	get(key, ver = "0.0.1") {
 		const {value, version, time } = this.data[key] || {};
@@ -155,13 +162,13 @@ export default class Storage {
 		}
 		return undefined;
 	}
-  getAll(ver = "0.0.1") {
-    // const { namespace } = this.options;
-    return Object.keys(this.data).reduce((obj, key) => {
-      obj[key] = this.get(key, ver);
-      return obj;
-    }, {})
-  }
+	getAll(ver = "0.0.1") {
+		// const { namespace } = this.options;
+		return Object.keys(this.data).reduce((obj, key) => {
+			obj[key] = this.get(key, ver);
+			return obj;
+		}, {})
+	}
 	set(key, value, expire = null) {
 		// const { namespace } = this.options;
 		// key = namespace + key;
