@@ -41,14 +41,6 @@ function isEqual(a, b) {
 	}
 }
 
-function noop (a, b, c) {}
-
-const sharedPropertyDefinition = {
-	enumerable: true,
-	configurable: true,
-	get: noop,
-	set: noop
-}
 function getVersionNumber(version) {
 	return Number(version.replace(/\./, ""));
 }
@@ -63,14 +55,6 @@ function getData(namespace) {
 		}
 		return obj;
 	}, {})
-}
-function getKey(...arg) {
-  return [...arg, "lsid"].join("__");
-}
-function getCallbackObj(id, actions) {
-  if(!id) return null;
-  if(!actions || actions.length <= 0) return null;
-  return actions.find(item => item.id === id);
 }
 export default class Storage extends Event {
 	constructor(options = {}) {
