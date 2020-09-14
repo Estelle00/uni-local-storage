@@ -76,6 +76,12 @@ Vue.ls.remove(name);
 Vue.ls.on(name, callback);
 ```
 添加`name`发生变化时的监听
+
+```javascript
+Vue.ls.once(name, callback);
+```
+添加`name`发生变化时的一次监听
+
 ```javascript
 Vue.ls.off(name, callback);
 ```
