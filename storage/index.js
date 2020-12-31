@@ -114,22 +114,16 @@ export default class Storage {
 		return undefined;
 	}
 	getAll(ver = "0.0.1") {
-		// const { namespace } = this.options;
 		return Object.keys(this.data).reduce((obj, key) => {
 			obj[key] = this.get(key, ver);
 			return obj;
 		}, {})
 	}
 	set(key, value, expire = null) {
-		// const { namespace } = this.options;
-		// key = namespace + key;
 		let time = null;
 		if (expire) {
 			time = Date.now() + expire * 1000;
 		}
-		// if (!this.data[key]) {
-		// 	this._proxy(this, "_data", key);
-		// }
 		this.data[key] = {
 			value,
 			version: this.options.version,
