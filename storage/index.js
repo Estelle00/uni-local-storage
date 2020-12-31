@@ -1,4 +1,5 @@
-import Event from "./event.js";
+import * as Event from "./event.js";
+
 function type(obj) {
 	return {}.toString
 		.call(obj)
@@ -56,49 +57,50 @@ function getData(namespace) {
 		return obj;
 	}, {})
 }
-export default class Storage extends Event {
+function isObject(data) {
+	return data !== null && typeof data === "object";
+}
+export default class Storage {
 	constructor(options = {}) {
-    super();
 		this.options = {
 			version: "0.0.1",
 			namespace: "__ls__",
 			...options
 		};
-		this.data = {};
-		// this.monitor = {};
-		const data = this._data = getData(options.namespace);
-		Object.keys(data).forEach(key => this._proxy(this, "_data", key));
-		Object.defineProperty(this, "length", {
-			get() {
-				return Object.keys(this._data).length;
+		Object.keys(Event).forEach(key => {
+			this[`$${key}`] = Event[key];
+		})
+		this.data = this.reactive(getData(options.namespace));
+	}
+
+	reactive(data) {
+		const { namespace } = this.options;
+		const self = this;
+		if (!isObject(data)) {
+			return data;
+		}
+		return new Proxy(data, {
+			get(target, key, receiver) {
+				// 此处只监听一层数据变化
+				return Reflect.get(target, key, receiver);
+				// return isObject(result) ? self.reactive(result) : result;
+			},
+			set(target, key, newData, receiver) {
+				self.effective(data[key], newData, key);
+				return Reflect.set(target, key, newData, receiver);
+			},
+			deleteProperty(target, key) {
+				uni.removeStorageSync(namespace + key);
+				return Reflect.deleteProperty(target, key);
 			}
 		})
 	}
-	_proxy(target, sourceKey, name) {
+	effective(oldData, data, key) {
 		const { namespace } = this.options;
-		Object.defineProperty(target.data, name, {
-			enumerable: true,
-			configurable: true,
-			get:() => {
-				return this[sourceKey][name];
-			},
-			set:(data) => {
-				const oldValue = this.data[name]?.value;
-				if (data === undefined) {
-					delete this.data[name];
-					delete this[sourceKey][name];
-					uni.removeStorageSync(namespace + name)
-				} else {
-					this[sourceKey][name] = data;
-					uni.setStorageSync(namespace + name, data);
-				}
-				const callbacks = this._events[name];
-				// 如果判断数据是否相同
-				if(callbacks && !isEqual(data?.value, oldValue)) {
-          this.emit(name, Object.freeze(data?.value) || null, oldValue);
-				}
-			}
-		})
+		if (!isEqual(oldData.value, data.value)) {
+			uni.setStorageSync(namespace + key, data);
+			this.$emit(key, data.value || null, oldData.value);
+		}
 	}
 	get(key, ver = "0.0.1") {
 		const {value, version, time } = this.data[key] || {};
@@ -125,9 +127,9 @@ export default class Storage extends Event {
 		if (expire) {
 			time = Date.now() + expire * 1000;
 		}
-		if (!this.data[key]) {
-			this._proxy(this, "_data", key);
-		}
+		// if (!this.data[key]) {
+		// 	this._proxy(this, "_data", key);
+		// }
 		this.data[key] = {
 			value,
 			version: this.options.version,
@@ -137,7 +139,7 @@ export default class Storage extends Event {
 	remove(key) {
 		const found = key in this.data;
 		if (found) {
-			this.data[key] = undefined;
+			delete this.data[key];
 			return true;
 		}
 		return false;

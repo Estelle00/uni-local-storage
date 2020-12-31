@@ -1,45 +1,52 @@
-class Event {
-  constructor() {
-    this._events = {};
-  }
-  once(event, fn) {
-    function on() {
-      this.off(event, on);
-      fn.apply(this, arguments)
+const events = {};
+
+export function on(event, fn) {
+  if (Array.isArray(event)) {
+    for (let e of event) {
+      on(e, fn);
     }
-    on.fn = fn;
-    this.on(event, on);
+  } else {
+    (events[event] || (events[event] = [])).push(fn);
   }
-  on(event, fn) {
-    (this._events[event] || (this._events[event] = [])).push(fn);
-  }
-  off(event, fn) {
-    const cbs = this._events[event];
-    if(!cbs) {
+}
+export function off(event, fn) {
+  if (Array.isArray(event)) {
+    for (const e of event) {
+      off(e, fn);
+    }
+  } else {
+    const cbs = events[event];
+    if (!cbs) return;
+    if (!fn) {
+      events[event] = null;
       return;
-    }
-    if(!fn) {
-      this._events[event] = null;
     }
     let cb = null;
     let i = cbs.length;
-    console.log(cbs);
-    while(i--) {
+    while (i--) {
       cb = cbs[i];
       if(cb === fn || cb.fn === fn) {
-        this._events[event].splice(i, 1);
+
+        events[event].splice(i, 1);
         break;
       }
     }
   }
-  emit(event, ...args) {
-    let cbs = this._events[event];
-    if(cbs) {
-      
-      cbs.forEach(cb => {
-        cb.apply(this, args);
-      })
+}
+export function once(event, fn) {
+  function callback() {
+    off(event, callback);
+    fn.apply(null, arguments);
+  }
+  callback.fn = fn;
+  on(event, callback);
+}
+
+export function emit(event, ...args) {
+  const cbs = events[event];
+  if (cbs) {
+    for (const cb of cbs) {
+      cb.apply(null, args);
     }
   }
 }
-export default Event;
