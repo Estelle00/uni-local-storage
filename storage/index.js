@@ -68,7 +68,7 @@ export default class Storage {
 			...options
 		};
 		Object.keys(Event).forEach(key => {
-			this[`$${key}`] = Event[key];
+			this[`${key}`] = Event[key];
 		})
 		this.data = this.reactive(getData(options.namespace));
 	}
@@ -97,9 +97,9 @@ export default class Storage {
 	}
 	effective(oldData, data, key) {
 		const { namespace } = this.options;
-		if (!isEqual(oldData.value, data.value)) {
+		if (!oldData || !isEqual(oldData?.value, data?.value)) {
 			uni.setStorageSync(namespace + key, data);
-			this.$emit(key, data.value || null, oldData.value);
+			this.emit(key, data.value || null, oldData.value);
 		}
 	}
 	get(key, ver = "0.0.1") {
