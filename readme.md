@@ -17,18 +17,22 @@ yarn add uni-local-storage
 uni storage API
 
 ```javascript
-import Storage from "uni-local-storage";
-// name 默认 ls；
-Vue.use(Storage, { name: "ls" });
-// or
-Vue.use(Storage);
+import { createStorage } from "uni-local-storage";
 // 实例化存储
 const config = {
   version: "0.0.1", // 当前存储版本号 推荐动态读取manifest.json文件版本名称（versionName）
   namespace: "__ls__", // 当前存储key前缀 推荐动态读取manifest.json文件中AppID（appid）
+  name: "ls" // 可选 自定义全局变量名称
 }
-const storage = new Storage(config);
-export default storage; // 方便js文件内直接使用
+// name 默认 ls；
+const storage = createStorage(config);
+// #ifdef VUE2
+Vue.use(storage);
+// #endif
+// #ifdef VUE3
+const app = createSSRApp(App);
+app.use(storage);
+// #endif
 
 new Vue({
     el: '#app',

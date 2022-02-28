@@ -65,6 +65,7 @@ export default class Storage {
 		this.options = {
 			version: "0.0.1",
 			namespace: "__ls__",
+      name: "ls",
 			...options
 		};
 		Object.keys(Event).forEach(key => {
@@ -72,7 +73,14 @@ export default class Storage {
 		})
 		this.data = this.reactive(getData(options.namespace));
 	}
-
+  install(app) {
+    // #ifdef VUE3
+    app.config.globalProperties[`${options.name}`] = this;
+    // #endif
+    // #ifdef VUE2
+    app.prototype[`${options.name}`] = this;
+    // #endif
+  }
 	reactive(data) {
 		const { namespace } = this.options;
 		const self = this;
